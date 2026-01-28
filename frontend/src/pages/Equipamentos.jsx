@@ -32,6 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
+import ImageUpload from "@/components/ImageUpload";
 
 const estadoOptions = ["Bom", "Razoável", "Mau"];
 
