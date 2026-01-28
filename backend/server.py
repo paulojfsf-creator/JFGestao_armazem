@@ -425,7 +425,7 @@ async def assign_resource(data: AssignmentCreate, user=Depends(get_current_user)
     }
     
     collection = collection_map.get(data.resource_type)
-    if not collection:
+    if collection is None:
         raise HTTPException(status_code=400, detail="Invalid resource type")
     
     resource = await collection.find_one({"id": data.resource_id}, {"_id": 0})
