@@ -276,43 +276,86 @@ class WarehouseAPITester:
 
         return True
 
-    # ==================== ASSIGNMENT TESTS ====================
-    def test_resource_assignments(self):
-        """Test resource assignment to obras"""
-        if not self.created_resources['obras'] or not self.created_resources['machines']:
-            self.log_result("Resource assignment", False, "No obra or machine available for testing")
-            return False
-
-        obra_id = self.created_resources['obras'][0]
-        machine_id = self.created_resources['machines'][0]
-
-        # Assign resource
-        assignment_data = {
-            "resource_id": machine_id,
-            "resource_type": "machine",
-            "obra_id": obra_id
-        }
+    # ==================== MOVEMENT TESTS ====================
+    def test_movement_operations(self):
+        """Test movement tracking operations"""
+        # Test stock movement (if we have materials)
+        if self.created_resources['materiais']:
+            material_id = self.created_resources['materiais'][0]
+            
+            movimento_stock_data = {
+                "material_id": material_id,
+                "tipo_movimento": "Entrada",
+                "quantidade": 50,
+                "fornecedor": "Fornecedor Teste",
+                "documento": "DOC-001",
+                "responsavel": "João Silva",
+                "observacoes": "Entrada de teste"
+            }
+            
+            success, response = self.make_request('POST', 'movimentos/stock', data=movimento_stock_data)
+            if success:
+                self.log_result("Create stock movement", True)
+            else:
+                self.log_result("Create stock movement", False, str(response))
+            
+            # Get stock movements
+            success, response = self.make_request('GET', 'movimentos/stock')
+            if success and isinstance(response, list):
+                self.log_result("Get stock movements", True)
+            else:
+                self.log_result("Get stock movements", False, str(response))
         
-        success, response = self.make_request('POST', 'assignments', data=assignment_data)
-        if success:
-            self.log_result("Assign resource to obra", True)
-        else:
-            self.log_result("Assign resource to obra", False, str(response))
-            return False
-
-        # Get obra resources
-        success, response = self.make_request('GET', f'obras/{obra_id}/resources')
-        if success and 'machines' in response and len(response['machines']) > 0:
-            self.log_result("Get obra resources", True)
-        else:
-            self.log_result("Get obra resources", False, str(response))
-
-        # Unassign resource
-        success, response = self.make_request('POST', 'assignments/unassign', data=assignment_data)
-        if success:
-            self.log_result("Unassign resource from obra", True)
-        else:
-            self.log_result("Unassign resource from obra", False, str(response))
+        # Test asset movement (if we have equipment)
+        if self.created_resources['equipamentos']:
+            equipamento_id = self.created_resources['equipamentos'][0]
+            
+            movimento_ativo_data = {
+                "ativo_id": equipamento_id,
+                "tipo_ativo": "equipamento",
+                "tipo_movimento": "Saida",
+                "responsavel": "João Silva",
+                "observacoes": "Saída para obra"
+            }
+            
+            success, response = self.make_request('POST', 'movimentos/ativos', data=movimento_ativo_data)
+            if success:
+                self.log_result("Create asset movement", True)
+            else:
+                self.log_result("Create asset movement", False, str(response))
+            
+            # Get asset movements
+            success, response = self.make_request('GET', 'movimentos/ativos')
+            if success and isinstance(response, list):
+                self.log_result("Get asset movements", True)
+            else:
+                self.log_result("Get asset movements", False, str(response))
+        
+        # Test vehicle movement (if we have vehicles)
+        if self.created_resources['viaturas']:
+            viatura_id = self.created_resources['viaturas'][0]
+            
+            movimento_viatura_data = {
+                "viatura_id": viatura_id,
+                "condutor": "João Silva",
+                "km_inicial": 1000,
+                "km_final": 1050,
+                "data": "2024-01-15",
+                "observacoes": "Deslocação para obra"
+            }
+            
+            success, response = self.make_request('POST', 'movimentos/viaturas', data=movimento_viatura_data)
+            if success:
+                self.log_result("Create vehicle movement", True)
+            else:
+                self.log_result("Create vehicle movement", False, str(response))
+            
+            # Get vehicle movements
+            success, response = self.make_request('GET', 'movimentos/viaturas')
+            if success and isinstance(response, list):
+                self.log_result("Get vehicle movements", True)
+            else:
+                self.log_result("Get vehicle movements", False, str(response))
 
         return True
 
@@ -321,7 +364,7 @@ class WarehouseAPITester:
         """Test dashboard summary endpoint"""
         success, response = self.make_request('GET', 'summary')
         
-        expected_keys = ['machines', 'equipment', 'tools', 'vehicles', 'materials', 'obras', 'alerts']
+        expected_keys = ['equipamentos', 'viaturas', 'materiais', 'locais', 'obras', 'alerts']
         if success and all(key in response for key in expected_keys):
             self.log_result("Get dashboard summary", True)
             return True
