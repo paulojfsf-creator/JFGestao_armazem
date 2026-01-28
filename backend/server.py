@@ -745,15 +745,24 @@ async def check_alerts(user=Depends(get_current_user)):
 @api_router.post("/alerts/send")
 async def send_alerts(background_tasks: BackgroundTasks, user=Depends(get_current_user)):
     """Send email alerts for expiring vistorias and seguros"""
+    if not ALERT_EMAIL or not resend.api_key:
+        raise HTTPException(status_code=400, detail="Configuração de email incompleta. Verifique RESEND_API_KEY e ALERT_EMAIL.")
+    
     try:
         alerts = await check_and_send_alerts()
         return {
             "status": "success",
-            "message": f"Email enviado com {len(alerts)} alerta(s)" if alerts else "Não há alertas para enviar",
+            "message": f"Email enviado com {len(alerts)} alerta(s) para {ALERT_EMAIL}" if alerts else "Não há alertas para enviar",
             "alerts_count": len(alerts)
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao enviar email: {str(e)}")
+        error_msg = str(e)
+        if "verify a domain" in error_msg.lower() or "testing emails" in error_msg.lower():
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Para enviar emails para {ALERT_EMAIL}, precisa de verificar o domínio em resend.com/domains. Atualmente só pode enviar para o email da conta Resend."
+            )
+        raise HTTPException(status_code=500, detail=f"Erro ao enviar email: {error_msg}")
 
 # ==================== SUMMARY ROUTE ====================
 @api_router.get("/summary")
