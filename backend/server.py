@@ -450,7 +450,7 @@ async def unassign_resource(data: AssignmentCreate, user=Depends(get_current_use
     }
     
     collection = collection_map.get(data.resource_type)
-    if not collection:
+    if collection is None:
         raise HTTPException(status_code=400, detail="Invalid resource type")
     
     await collection.update_one(
