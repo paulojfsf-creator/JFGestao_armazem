@@ -9,6 +9,7 @@ import sys
 import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+from PIL import Image
 
 class WarehouseAPITester:
     def __init__(self, base_url="https://construction-hub-119.preview.emergentagent.com"):
