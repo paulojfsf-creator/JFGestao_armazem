@@ -288,10 +288,10 @@ export default function Viaturas() {
               </div>
               <div className="space-y-2">
                 <Label>Local</Label>
-                <Select value={formData.local_id} onValueChange={(v) => setFormData({...formData, local_id: v})}>
+                <Select value={formData.local_id || "none"} onValueChange={(v) => setFormData({...formData, local_id: v === "none" ? "" : v})}>
                   <SelectTrigger className="rounded-sm"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
+                    <SelectItem value="none">Nenhum</SelectItem>
                     {locais.map(l => <SelectItem key={l.id} value={l.id}>{l.codigo} - {l.nome}</SelectItem>)}
                   </SelectContent>
                 </Select>
