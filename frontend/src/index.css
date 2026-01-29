@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,45 +12,33 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Chivo', sans-serif;
-    font-weight: 900;
-    letter-spacing: -0.025em;
-}
-
-code, .mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.03em;
 }
 
 @layer base {
     :root {
-        --background: 210 40% 98%;
-        --foreground: 222 84% 5%;
-        --card: 0 0% 100%;
-        --card-foreground: 222 84% 5%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 222 84% 5%;
-        --primary: 222 47% 11%;
-        --primary-foreground: 210 40% 98%;
-        --secondary: 210 40% 96%;
-        --secondary-foreground: 222 47% 11%;
-        --muted: 210 40% 96%;
-        --muted-foreground: 215 16% 47%;
-        --accent: 38 92% 50%;
-        --accent-foreground: 222 47% 11%;
+        --background: 0 0% 7%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 95%;
+        --popover: 0 0% 12%;
+        --popover-foreground: 0 0% 95%;
+        --primary: 24 95% 53%;
+        --primary-foreground: 0 0% 0%;
+        --secondary: 0 0% 15%;
+        --secondary-foreground: 0 0% 95%;
+        --muted: 0 0% 15%;
+        --muted-foreground: 0 0% 60%;
+        --accent: 24 95% 53%;
+        --accent-foreground: 0 0% 0%;
         --destructive: 0 84% 60%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 214 32% 91%;
-        --input: 214 32% 91%;
-        --ring: 222 47% 11%;
-        --chart-1: 38 92% 50%;
-        --chart-2: 142 71% 45%;
-        --chart-3: 0 84% 60%;
-        --chart-4: 215 16% 47%;
-        --chart-5: 222 47% 11%;
-        --radius: 0.125rem;
-        --success: 142 71% 45%;
-        --warning: 38 92% 50%;
-        --error: 0 84% 60%;
+        --destructive-foreground: 0 0% 95%;
+        --border: 0 0% 20%;
+        --input: 0 0% 20%;
+        --ring: 24 95% 53%;
+        --radius: 0.25rem;
     }
 }
 
@@ -64,56 +52,51 @@ code, .mono {
 }
 
 @layer utilities {
-    .status-available {
-        @apply bg-emerald-100 text-emerald-800 border-emerald-200;
+    .status-disponivel {
+        @apply bg-emerald-500/20 text-emerald-400 border-emerald-500/30;
     }
-    .status-in_use {
-        @apply bg-amber-100 text-amber-800 border-amber-200;
+    .status-em-obra {
+        @apply bg-orange-500/20 text-orange-400 border-orange-500/30;
     }
-    .status-maintenance {
-        @apply bg-orange-100 text-orange-800 border-orange-200;
+    .status-inativo {
+        @apply bg-neutral-500/20 text-neutral-400 border-neutral-500/30;
     }
-    .status-broken {
-        @apply bg-red-100 text-red-800 border-red-200;
+    .status-ativa {
+        @apply bg-emerald-500/20 text-emerald-400 border-emerald-500/30;
     }
-    .status-active {
-        @apply bg-emerald-100 text-emerald-800 border-emerald-200;
+    .status-concluida {
+        @apply bg-neutral-500/20 text-neutral-400 border-neutral-500/30;
     }
-    .status-completed {
-        @apply bg-slate-100 text-slate-800 border-slate-200;
-    }
-    .status-paused {
-        @apply bg-amber-100 text-amber-800 border-amber-200;
+    .status-pausada {
+        @apply bg-amber-500/20 text-amber-400 border-amber-500/30;
     }
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #1a1a1a;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    background: #333;
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: #444;
 }
 
-/* Animation utilities */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
+    animation: fadeIn 0.25s ease-out forwards;
 }
 
 .stagger-1 { animation-delay: 0.05s; }
