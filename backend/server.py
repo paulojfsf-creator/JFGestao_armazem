@@ -373,6 +373,14 @@ async def get_equipamento(equipamento_id: str, user=Depends(get_current_user)):
         {"_id": 0}
     ).sort("created_at", -1).to_list(100)
     
+    # Enrich movements with obra name
+    for mov in movimentos:
+        if mov.get("obra_id"):
+            obra_mov = await db.obras.find_one({"id": mov["obra_id"]}, {"_id": 0, "nome": 1, "codigo": 1})
+            if obra_mov:
+                mov["obra_nome"] = obra_mov.get("nome", "")
+                mov["obra_codigo"] = obra_mov.get("codigo", "")
+    
     return {"equipamento": item, "obra_atual": obra, "historico": movimentos}
 
 @api_router.post("/equipamentos")
@@ -421,6 +429,14 @@ async def get_viatura(viatura_id: str, user=Depends(get_current_user)):
         {"recurso_id": viatura_id, "tipo_recurso": "viatura"}, 
         {"_id": 0}
     ).sort("created_at", -1).to_list(100)
+    
+    # Enrich movements with obra name
+    for mov in movimentos:
+        if mov.get("obra_id"):
+            obra_mov = await db.obras.find_one({"id": mov["obra_id"]}, {"_id": 0, "nome": 1, "codigo": 1})
+            if obra_mov:
+                mov["obra_nome"] = obra_mov.get("nome", "")
+                mov["obra_codigo"] = obra_mov.get("codigo", "")
     
     km_movimentos = await db.movimentos_viaturas.find(
         {"viatura_id": viatura_id}, {"_id": 0}

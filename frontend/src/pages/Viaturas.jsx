@@ -251,6 +251,7 @@ export default function Viaturas() {
             <table className="w-full" data-testid="viaturas-table">
               <thead>
                 <tr className={`border-b ${isDark ? 'border-neutral-700' : 'border-gray-200'}`}>
+                  <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Foto</th>
                   <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Matrícula</th>
                   <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Marca/Modelo</th>
                   <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Combustível</th>
@@ -267,6 +268,20 @@ export default function Viaturas() {
                     onClick={() => navigate(`/viaturas/${item.id}`)}
                     data-testid={`viatura-row-${item.id}`}
                   >
+                    <td className="py-2 px-4">
+                      {item.foto ? (
+                        <img 
+                          src={item.foto.startsWith('/api') ? `${process.env.REACT_APP_BACKEND_URL}${item.foto}` : item.foto}
+                          alt={item.matricula}
+                          className="h-12 w-12 object-cover rounded-lg"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${isDark ? 'bg-neutral-700' : 'bg-gray-100'}`}>
+                          <Truck className={`h-5 w-5 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                        </div>
+                      )}
+                    </td>
                     <td className="py-3 px-4 font-mono text-orange-500 font-bold">{item.matricula}</td>
                     <td className={`py-3 px-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.marca} {item.modelo}</td>
                     <td className={`py-3 px-4 ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>{item.combustivel}</td>
