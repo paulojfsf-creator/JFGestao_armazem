@@ -1,0 +1,26 @@
+{
+  "short_name": "José Firmino",
+  "name": "José Firmino - Gestão de Armazém",
+  "description": "Sistema de gestão de armazém para construção civil",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#f97316",
+  "background_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity"],
+  "lang": "pt-PT"
+}
