@@ -279,7 +279,7 @@ export default function Reports() {
                       <SelectValue placeholder="Todas as obras" />
                     </SelectTrigger>
                     <SelectContent className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
-                      <SelectItem value="" className={isDark ? 'text-white' : 'text-gray-900'}>Todas as obras</SelectItem>
+                      <SelectItem value="all" className={isDark ? 'text-white' : 'text-gray-900'}>Todas as obras</SelectItem>
                       {obras.map(o => (
                         <SelectItem key={o.id} value={o.id} className={isDark ? 'text-white' : 'text-gray-900'}>
                           {o.codigo} - {o.nome}
@@ -295,7 +295,7 @@ export default function Reports() {
                       <SelectValue placeholder="Todos os meses" />
                     </SelectTrigger>
                     <SelectContent className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
-                      <SelectItem value="" className={isDark ? 'text-white' : 'text-gray-900'}>Todos os meses</SelectItem>
+                      <SelectItem value="all" className={isDark ? 'text-white' : 'text-gray-900'}>Todos os meses</SelectItem>
                       {meses.map(m => (
                         <SelectItem key={m.value} value={m.value} className={isDark ? 'text-white' : 'text-gray-900'}>{m.label}</SelectItem>
                       ))}
