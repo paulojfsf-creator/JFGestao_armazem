@@ -971,6 +971,238 @@ async def get_summary(user=Depends(get_current_user)):
         "alerts": alerts
     }
 
+# ==================== RELATÓRIOS AVANÇADOS ====================
+@api_router.get("/relatorios/movimentos")
+async def get_relatorio_movimentos(
+    obra_id: Optional[str] = None,
+    mes: Optional[int] = None,
+    ano: Optional[int] = None,
+    tipo_recurso: Optional[str] = None,
+    user=Depends(get_current_user)
+):
+    """Relatório de movimentos de equipamentos e viaturas filtrado por obra e período"""
+    # Build query filter
+    query = {}
+    
+    if obra_id:
+        query["obra_id"] = obra_id
+    
+    if tipo_recurso:
+        query["tipo_recurso"] = tipo_recurso
+    
+    # Date filtering
+    if mes and ano:
+        start_date = datetime(ano, mes, 1, tzinfo=timezone.utc)
+        if mes == 12:
+            end_date = datetime(ano + 1, 1, 1, tzinfo=timezone.utc)
+        else:
+            end_date = datetime(ano, mes + 1, 1, tzinfo=timezone.utc)
+        query["created_at"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+    elif ano:
+        start_date = datetime(ano, 1, 1, tzinfo=timezone.utc)
+        end_date = datetime(ano + 1, 1, 1, tzinfo=timezone.utc)
+        query["created_at"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+    
+    movimentos = await db.movimentos.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    # Enrich with resource and obra details
+    enriched = []
+    for mov in movimentos:
+        item = {**mov}
+        
+        # Get resource details
+        if mov.get("tipo_recurso") == "equipamento":
+            recurso = await db.equipamentos.find_one({"id": mov["recurso_id"]}, {"_id": 0, "codigo": 1, "descricao": 1})
+            if recurso:
+                item["recurso_codigo"] = recurso.get("codigo", "")
+                item["recurso_descricao"] = recurso.get("descricao", "")
+        elif mov.get("tipo_recurso") == "viatura":
+            recurso = await db.viaturas.find_one({"id": mov["recurso_id"]}, {"_id": 0, "matricula": 1, "marca": 1, "modelo": 1})
+            if recurso:
+                item["recurso_codigo"] = recurso.get("matricula", "")
+                item["recurso_descricao"] = f"{recurso.get('marca', '')} {recurso.get('modelo', '')}"
+        
+        # Get obra details
+        if mov.get("obra_id"):
+            obra = await db.obras.find_one({"id": mov["obra_id"]}, {"_id": 0, "codigo": 1, "nome": 1})
+            if obra:
+                item["obra_codigo"] = obra.get("codigo", "")
+                item["obra_nome"] = obra.get("nome", "")
+        
+        enriched.append(item)
+    
+    # Statistics
+    total_saidas = len([m for m in movimentos if m.get("tipo_movimento") == "Saida"])
+    total_devolucoes = len([m for m in movimentos if m.get("tipo_movimento") == "Devolucao"])
+    equipamentos_movidos = len(set([m["recurso_id"] for m in movimentos if m.get("tipo_recurso") == "equipamento"]))
+    viaturas_movidas = len(set([m["recurso_id"] for m in movimentos if m.get("tipo_recurso") == "viatura"]))
+    
+    return {
+        "movimentos": enriched,
+        "estatisticas": {
+            "total_movimentos": len(movimentos),
+            "total_saidas": total_saidas,
+            "total_devolucoes": total_devolucoes,
+            "equipamentos_movidos": equipamentos_movidos,
+            "viaturas_movidas": viaturas_movidas
+        }
+    }
+
+@api_router.get("/relatorios/stock")
+async def get_relatorio_stock(
+    obra_id: Optional[str] = None,
+    mes: Optional[int] = None,
+    ano: Optional[int] = None,
+    user=Depends(get_current_user)
+):
+    """Relatório de movimentos de stock (materiais) filtrado por obra e período"""
+    query = {}
+    
+    if obra_id:
+        query["obra_id"] = obra_id
+    
+    if mes and ano:
+        start_date = datetime(ano, mes, 1, tzinfo=timezone.utc)
+        if mes == 12:
+            end_date = datetime(ano + 1, 1, 1, tzinfo=timezone.utc)
+        else:
+            end_date = datetime(ano, mes + 1, 1, tzinfo=timezone.utc)
+        query["data_hora"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+    elif ano:
+        start_date = datetime(ano, 1, 1, tzinfo=timezone.utc)
+        end_date = datetime(ano + 1, 1, 1, tzinfo=timezone.utc)
+        query["data_hora"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+    
+    movimentos = await db.movimentos_stock.find(query, {"_id": 0}).sort("data_hora", -1).to_list(1000)
+    
+    # Enrich with material and obra details
+    enriched = []
+    materiais_gastos = {}
+    
+    for mov in movimentos:
+        item = {**mov}
+        
+        # Get material details
+        material = await db.materiais.find_one({"id": mov["material_id"]}, {"_id": 0, "codigo": 1, "descricao": 1, "unidade": 1})
+        if material:
+            item["material_codigo"] = material.get("codigo", "")
+            item["material_descricao"] = material.get("descricao", "")
+            item["material_unidade"] = material.get("unidade", "un")
+            
+            # Track consumption by material
+            mat_id = mov["material_id"]
+            if mat_id not in materiais_gastos:
+                materiais_gastos[mat_id] = {
+                    "codigo": material.get("codigo", ""),
+                    "descricao": material.get("descricao", ""),
+                    "unidade": material.get("unidade", "un"),
+                    "entradas": 0,
+                    "saidas": 0
+                }
+            if mov.get("tipo_movimento") == "Entrada":
+                materiais_gastos[mat_id]["entradas"] += mov.get("quantidade", 0)
+            else:
+                materiais_gastos[mat_id]["saidas"] += mov.get("quantidade", 0)
+        
+        # Get obra details
+        if mov.get("obra_id"):
+            obra = await db.obras.find_one({"id": mov["obra_id"]}, {"_id": 0, "codigo": 1, "nome": 1})
+            if obra:
+                item["obra_codigo"] = obra.get("codigo", "")
+                item["obra_nome"] = obra.get("nome", "")
+        
+        enriched.append(item)
+    
+    # Statistics
+    total_entradas = sum(m.get("quantidade", 0) for m in movimentos if m.get("tipo_movimento") == "Entrada")
+    total_saidas = sum(m.get("quantidade", 0) for m in movimentos if m.get("tipo_movimento") == "Saida")
+    
+    return {
+        "movimentos": enriched,
+        "materiais_resumo": list(materiais_gastos.values()),
+        "estatisticas": {
+            "total_movimentos": len(movimentos),
+            "total_entradas": total_entradas,
+            "total_saidas": total_saidas,
+            "consumo_liquido": total_saidas - total_entradas,
+            "materiais_diferentes": len(materiais_gastos)
+        }
+    }
+
+@api_router.get("/relatorios/obra/{obra_id}")
+async def get_relatorio_obra(
+    obra_id: str,
+    mes: Optional[int] = None,
+    ano: Optional[int] = None,
+    user=Depends(get_current_user)
+):
+    """Relatório completo de uma obra específica"""
+    obra = await db.obras.find_one({"id": obra_id}, {"_id": 0})
+    if not obra:
+        raise HTTPException(status_code=404, detail="Obra não encontrada")
+    
+    # Get resources currently assigned
+    equipamentos_atuais = await db.equipamentos.find({"obra_id": obra_id}, {"_id": 0}).to_list(100)
+    viaturas_atuais = await db.viaturas.find({"obra_id": obra_id}, {"_id": 0}).to_list(100)
+    
+    # Get movement history for this obra
+    mov_query = {"obra_id": obra_id}
+    stock_query = {"obra_id": obra_id}
+    
+    if mes and ano:
+        start_date = datetime(ano, mes, 1, tzinfo=timezone.utc)
+        if mes == 12:
+            end_date = datetime(ano + 1, 1, 1, tzinfo=timezone.utc)
+        else:
+            end_date = datetime(ano, mes + 1, 1, tzinfo=timezone.utc)
+        mov_query["created_at"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+        stock_query["data_hora"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+    elif ano:
+        start_date = datetime(ano, 1, 1, tzinfo=timezone.utc)
+        end_date = datetime(ano + 1, 1, 1, tzinfo=timezone.utc)
+        mov_query["created_at"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+        stock_query["data_hora"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+    
+    movimentos_ativos = await db.movimentos.find(mov_query, {"_id": 0}).sort("created_at", -1).to_list(500)
+    movimentos_stock = await db.movimentos_stock.find(stock_query, {"_id": 0}).sort("data_hora", -1).to_list(500)
+    
+    # Calculate stock consumption by material
+    consumo_materiais = {}
+    for mov in movimentos_stock:
+        mat_id = mov["material_id"]
+        material = await db.materiais.find_one({"id": mat_id}, {"_id": 0, "codigo": 1, "descricao": 1, "unidade": 1})
+        if material:
+            if mat_id not in consumo_materiais:
+                consumo_materiais[mat_id] = {
+                    "codigo": material.get("codigo", ""),
+                    "descricao": material.get("descricao", ""),
+                    "unidade": material.get("unidade", "un"),
+                    "quantidade_gasta": 0
+                }
+            if mov.get("tipo_movimento") == "Saida":
+                consumo_materiais[mat_id]["quantidade_gasta"] += mov.get("quantidade", 0)
+    
+    return {
+        "obra": obra,
+        "recursos_atuais": {
+            "equipamentos": equipamentos_atuais,
+            "viaturas": viaturas_atuais
+        },
+        "periodo_filtrado": {
+            "mes": mes,
+            "ano": ano
+        },
+        "estatisticas": {
+            "equipamentos_atuais": len(equipamentos_atuais),
+            "viaturas_atuais": len(viaturas_atuais),
+            "movimentos_ativos": len(movimentos_ativos),
+            "movimentos_stock": len(movimentos_stock),
+            "total_saidas_ativos": len([m for m in movimentos_ativos if m.get("tipo_movimento") == "Saida"]),
+            "total_devolucoes": len([m for m in movimentos_ativos if m.get("tipo_movimento") == "Devolucao"])
+        },
+        "consumo_materiais": list(consumo_materiais.values())
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "José Firmino - API de Gestão de Armazém"}
