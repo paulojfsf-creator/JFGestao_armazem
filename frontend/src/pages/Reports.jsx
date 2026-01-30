@@ -76,8 +76,8 @@ export default function Reports() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filtroObra) params.append("obra_id", filtroObra);
-      if (filtroMes) params.append("mes", filtroMes);
+      if (filtroObra && filtroObra !== "all") params.append("obra_id", filtroObra);
+      if (filtroMes && filtroMes !== "all") params.append("mes", filtroMes);
       if (filtroAno) params.append("ano", filtroAno);
       
       const response = await axios.get(`${API}/relatorios/movimentos?${params}`, {
@@ -95,8 +95,8 @@ export default function Reports() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filtroObra) params.append("obra_id", filtroObra);
-      if (filtroMes) params.append("mes", filtroMes);
+      if (filtroObra && filtroObra !== "all") params.append("obra_id", filtroObra);
+      if (filtroMes && filtroMes !== "all") params.append("mes", filtroMes);
       if (filtroAno) params.append("ano", filtroAno);
       
       const response = await axios.get(`${API}/relatorios/stock?${params}`, {
@@ -111,14 +111,14 @@ export default function Reports() {
   };
 
   const fetchRelatorioObra = async () => {
-    if (!filtroObra) {
+    if (!filtroObra || filtroObra === "all") {
       toast.error("Selecione uma obra para ver o relatório");
       return;
     }
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filtroMes) params.append("mes", filtroMes);
+      if (filtroMes && filtroMes !== "all") params.append("mes", filtroMes);
       if (filtroAno) params.append("ano", filtroAno);
       
       const response = await axios.get(`${API}/relatorios/obra/${filtroObra}?${params}`, {
