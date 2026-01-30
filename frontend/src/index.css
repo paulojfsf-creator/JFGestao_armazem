@@ -18,7 +18,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @layer base {
-    :root {
+    :root,
+    .dark {
         --background: 0 0% 7%;
         --foreground: 0 0% 95%;
         --card: 0 0% 10%;
@@ -39,6 +40,28 @@ h1, h2, h3, h4, h5, h6 {
         --input: 0 0% 20%;
         --ring: 24 95% 53%;
         --radius: 0.25rem;
+    }
+
+    .light {
+        --background: 0 0% 98%;
+        --foreground: 0 0% 9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 9%;
+        --primary: 24 95% 53%;
+        --primary-foreground: 0 0% 0%;
+        --secondary: 0 0% 96%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96%;
+        --muted-foreground: 0 0% 45%;
+        --accent: 24 95% 53%;
+        --accent-foreground: 0 0% 0%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 90%;
+        --input: 0 0% 90%;
+        --ring: 24 95% 53%;
     }
 }
 
@@ -72,22 +95,40 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-::-webkit-scrollbar {
+.dark ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 
-::-webkit-scrollbar-track {
+.dark ::-webkit-scrollbar-track {
     background: #1a1a1a;
 }
 
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.dark ::-webkit-scrollbar-thumb:hover {
     background: #444;
+}
+
+.light ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.light ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.light ::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
 }
 
 @keyframes fadeIn {
