@@ -1,0 +1,100 @@
+{
+  "summary": "Completed comprehensive testing of advanced reports and PWA features. All backend APIs and frontend functionality working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "API /api/relatorios/movimentos - returns statistics and filtered movements list (15 pytest tests passed)",
+    "API /api/relatorios/stock - returns statistics and material consumption summary",
+    "API /api/relatorios/obra/{obra_id} - returns complete obra-specific report",
+    "Frontend Reports.jsx - Obra filter dropdown works correctly",
+    "Frontend Reports.jsx - Mês filter dropdown works correctly",
+    "Frontend Reports.jsx - Ano filter dropdown works correctly (default 2026)",
+    "Frontend Reports.jsx - Movimentos button loads report with statistics and data table",
+    "Frontend Reports.jsx - Consumo de Materiais button loads stock report",
+    "Frontend Reports.jsx - Relatório da Obra button loads obra-specific report (requires obra selection)",
+    "Frontend Reports.jsx - Exportar/Importar tab shows summary and export/import buttons",
+    "PWA manifest.json accessible at /manifest.json with correct configuration",
+    "PWA service worker registered and active",
+    "PWA icons (192x192 and 512x512) exist and are accessible",
+    "PWA meta tags present (theme-color, apple-mobile-web-app-capable)"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_relatorios_api.py",
+    "/app/test_reports/pytest/pytest_relatorios_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_relatorios_api.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "email": "test@test.com",
+    "password": "test123"
+  },
+  "seed_data_creation": "Used existing test data: 8 movimentos, 6 stock movements, 1 obra (Obra Teste)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Advanced reports feature fully tested. Reports page has two tabs: 'Relatórios Avançados' (with filters and 3 report buttons) and 'Exportar/Importar' (with summary and export/import buttons). PWA is fully configured with manifest, service worker, and icons. The app has 198 equipamentos, 22 viaturas, 0 materiais, and 1 obra.",
+  "test_details": {
+    "reports_api_tests": {
+      "total_tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "endpoints_tested": [
+        "/api/relatorios/movimentos",
+        "/api/relatorios/stock",
+        "/api/relatorios/obra/{obra_id}"
+      ]
+    },
+    "frontend_reports_tests": {
+      "movimentos_report": {
+        "statistics": {
+          "total_movimentos": 8,
+          "total_saidas": 4,
+          "total_devolucoes": 4,
+          "equipamentos_movidos": 2,
+          "viaturas_movidas": 1
+        }
+      },
+      "stock_report": {
+        "statistics": {
+          "total_movimentos": 6,
+          "total_entradas": 250,
+          "total_saidas": 10,
+          "materiais_diferentes": 0
+        }
+      },
+      "obra_report": {
+        "obra": "OB0001 - Obra Teste",
+        "statistics": {
+          "equipamentos_atuais": 0,
+          "viaturas_atuais": 0,
+          "atribuicoes_periodo": 3,
+          "mov_materiais": 1
+        }
+      }
+    },
+    "pwa_tests": {
+      "manifest_accessible": true,
+      "service_worker_registered": true,
+      "service_worker_active": true,
+      "theme_color": "#f97316",
+      "icons_accessible": {
+        "icon_192": true,
+        "icon_512": true
+      },
+      "apple_mobile_web_app_capable": "yes"
+    }
+  }
+}
